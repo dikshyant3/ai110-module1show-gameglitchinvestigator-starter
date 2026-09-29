@@ -38,6 +38,21 @@ def update_score(current_score: int, outcome: str, attempt_number: int):
 
     return current_score
 
+
+def render_guess_history():
+    st.sidebar.divider()
+    st.sidebar.subheader("Guess History")
+
+    if not st.session_state.history:
+        st.sidebar.caption("No guesses yet.")
+        return
+
+    for entry in st.session_state.history:
+        if isinstance(entry, dict):
+            st.sidebar.write(f"{entry['guess']} — {entry['outcome']}")
+        else:
+            st.sidebar.write(entry)
+
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
 
 st.title("🎮 Game Glitch Investigator")
@@ -108,6 +123,7 @@ with col3:
 # FIXME: The game logic is a bit glitchy here as well becuase New Game does not use the selected difficulty range. It always uses 1-100. This is a bug that needs to be fixed.
 if new_game:
     st.session_state.attempts = 0
+    st.session_state.history = []
 
     # FIX: Use the selected difficulty range for the new game instead of always using 1-100.
     st.session_state.secret = random.randint(low, high)
@@ -115,6 +131,7 @@ if new_game:
     st.rerun()
 
 if st.session_state.status != "playing":
+    render_guess_history()
     if st.session_state.status == "won":
         st.success("You already won. Start a new game to play again.")
     else:
@@ -127,17 +144,12 @@ if submit:
     ok, guess_int, err = parse_guess(raw_guess)
 
     if not ok:
-        st.session_state.history.append(raw_guess)
+        st.session_state.history.append({"guess": raw_guess, "outcome": "Invalid input"})
         st.error(err)
     else:
-        st.session_state.history.append(guess_int)
-
-        if st.session_state.attempts % 2 == 0:
-            secret = str(st.session_state.secret)
-        else:
-            secret = st.session_state.secret
-
-        outcome, message = check_guess(guess_int, secret)
+        outcome, message = check_guess(guess_int, st.session_state.secret)
+        history_outcome = "Correct" if outcome == "Win" else outcome
+        st.session_state.history.append({"guess": guess_int, "outcome": history_outcome})
 
         if show_hint:
             st.warning(message)
@@ -163,6 +175,8 @@ if submit:
                     f"The secret was {st.session_state.secret}. "
                     f"Score: {st.session_state.score}"
                 )
+
+render_guess_history()
 
 st.divider()
 st.caption("Built by an AI that claims this code is production-ready.")

@@ -26,3 +26,16 @@ def test_normal_difficulty_range():
 def test_hard_difficulty_range():
     low, high = get_range_for_difficulty("Hard")
     assert low == 1 and high == 50
+
+def test_decimal_guess():
+    result = check_guess(12.9, 50)
+    assert result == ("Too Low", "📈 Go HIGHER!")
+
+def test_negative_guess():
+   result = check_guess(-10, 50)
+   assert result == ("Too Low", "📈 Go HIGHER!")
+
+
+def test_very_large_guess():
+    result = check_guess(10**1000, 50)
+    assert result == ("Too High", "📉 Go LOWER!")
