@@ -53,6 +53,7 @@ def render_guess_history():
         else:
             st.sidebar.write(entry)
 
+
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
 
 st.title("🎮 Game Glitch Investigator")
@@ -120,12 +121,16 @@ with col2:
 with col3:
     show_hint = st.checkbox("Show hint", value=True)
 
-# FIXME: The game logic is a bit glitchy here as well becuase New Game does not use the selected difficulty range. It always uses 1-100. This is a bug that needs to be fixed.
+# FIXME: The game logic is a bit glitchy here as well because New Game does
+# not use the selected difficulty range. It always uses 1-100. This is a bug
+# that needs to be fixed.
 if new_game:
     st.session_state.attempts = 0
     st.session_state.history = []
 
-    # FIX: Use the selected difficulty range for the new game instead of always using 1-100.
+# FIX: Use the selected difficulty range for the new game
+# instead of always using 1-100.
+
     st.session_state.secret = random.randint(low, high)
     st.success("New game started.")
     st.rerun()
@@ -133,7 +138,9 @@ if new_game:
 if st.session_state.status != "playing":
     render_guess_history()
     if st.session_state.status == "won":
-        st.success("You already won. Start a new game to play again.")
+        st.success(
+            "You already won. Start a new game to play again."
+        )
     else:
         st.error("Game over. Start a new game to try again.")
     st.stop()
@@ -144,15 +151,21 @@ if submit:
     ok, guess_int, err = parse_guess(raw_guess)
 
     if not ok:
-        st.session_state.history.append({"guess": raw_guess, "outcome": "Invalid input"})
+        st.session_state.history.append(
+            {"guess": raw_guess, "outcome": "Invalid input"}
+        )
         st.error(err)
     else:
         outcome, message = check_guess(guess_int, st.session_state.secret)
         history_outcome = "Correct" if outcome == "Win" else outcome
-        st.session_state.history.append({"guess": guess_int, "outcome": history_outcome})
+        st.session_state.history.append(
+            {"guess": guess_int, "outcome": history_outcome}
+        )
 
-        if show_hint:
+        if show_hint and outcome == "Too High":
             st.warning(message)
+        elif show_hint and outcome == "Too Low":
+            st.info(message)
 
         st.session_state.score = update_score(
             current_score=st.session_state.score,
@@ -164,14 +177,14 @@ if submit:
             st.balloons()
             st.session_state.status = "won"
             st.success(
-                f"You won! The secret was {st.session_state.secret}. "
+                f"{message} The secret was {st.session_state.secret}. "
                 f"Final score: {st.session_state.score}"
             )
         else:
             if st.session_state.attempts >= attempt_limit:
                 st.session_state.status = "lost"
                 st.error(
-                    f"Out of attempts! "
+                    "Out of attempts! "
                     f"The secret was {st.session_state.secret}. "
                     f"Score: {st.session_state.score}"
                 )

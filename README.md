@@ -79,3 +79,15 @@ collected 9 items
 tests/test_game_logic.py .........                                                                                                 [100%]
 
 =========================================================== 9 passed in 0.02s ============================================================
+
+### Challenge 4: Enhanced UI Features
+
+I enhanced the Streamlit UI in app.py to make the game's feedback more user-friendly and visually distinct. 
+
+Previously, all results from check_guess() were displayed using the warning style. The UI now uses different Streamlit messages styles based on the result:
+
+1. **Too High**: st.warning() with the 📉 "Go LOWER!" message.
+2. **Too Low**: st.info() with the 📈 "Go HIGHER!" message.
+3. **Correct**: st.success() with the 🎉 "Correct!" message, followed by the secret number and final score.
+
+The check_guess() function in the logic_utils.py file was not changed. The guessing logic and result messages is still the same but only the UI implementation changes. 
